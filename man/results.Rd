@@ -43,7 +43,7 @@ This function pulls out result from NBAMSeqDataSet object
 returned by \code{\link{NBAMSeq}}
 }
 \examples{
-gsd = makeExample()
+gsd = makeExample(n = 30, m = 30)
 gsd = NBAMSeq(gsd, parallel = TRUE)
 res = results(gsd, name = "pheno")
 }

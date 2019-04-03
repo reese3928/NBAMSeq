@@ -4,8 +4,8 @@ context("Test methods")
 library(DESeq2)
 
 test_that("Test getsf", {
-    n = 100
-    m = 50
+    n = 30
+    m = 30
     gsd = makeExample(n = n, m = m)
     sf = getsf(gsd)
     expect_true(is.null(sf))
@@ -24,8 +24,8 @@ test_that("Test getsf", {
 
 
 test_that("set getsf", {
-    n = 100
-    m = 50
+    n = 30
+    m = 30
     gsd = makeExample(n = n, m = m)
     sf = as.factor(sample(1:5,m, replace = TRUE))
     expect_error((setsf(gsd) = sf))

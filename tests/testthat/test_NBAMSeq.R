@@ -25,7 +25,7 @@ test_that("Test invalid input", {
 })
 
 test_that("Test parallel option", {
-    gsd = makeExample()
+    gsd = makeExample(n=30,m=30)
     gsd1 = NBAMSeq(gsd, parallel = TRUE)
     gsd2 = NBAMSeq(gsd, parallel = FALSE)
     expect_identical(gsd1,gsd2)
@@ -34,7 +34,7 @@ test_that("Test parallel option", {
 })
 
 test_that("Test NBAMSeq output", {
-    gsd = makeExample()
+    gsd = makeExample(n=30,m=30)
     gsd = NBAMSeq(gsd, parallel = TRUE)
     expect_true("Intercept"%in%names(mcols(gsd)))
     expect_true("edf_pheno"%in%names(mcols(gsd)))
@@ -44,7 +44,7 @@ test_that("Test NBAMSeq output", {
     expect_true("null_deviance"%in%names(mcols(gsd)))
     expect_true("df_null"%in%names(mcols(gsd)))
 
-    n = 200
+    n = 30
     m = 30
     pheno = runif(m, 20, 80)
     mu = matrix(rep(NA, n*m), nrow = n)
@@ -92,7 +92,7 @@ test_that("Test NBAMSeq output", {
 })
 
 test_that("Test additional argument for gam", {
-    gsd = makeExample()
+    gsd = makeExample(n=30,m=30)
     gsd = NBAMSeq(gsd, parallel = TRUE, control=gam.control(maxit = 1))
     expect_true(all(mcols(gsd)[["innerIter"]]<=1))
 })

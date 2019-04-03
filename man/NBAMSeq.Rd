@@ -31,7 +31,7 @@ This function performs differential expression analysis based
 on negative binomial additive model.
 }
 \examples{
-gsd = makeExample()
+gsd = makeExample(n = 30, m = 30)
 gsd = NBAMSeq(gsd, parallel = TRUE)
 }
 \references{

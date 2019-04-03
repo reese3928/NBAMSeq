@@ -2,7 +2,7 @@ context("Test results")
 
 test_that("Test invalid input", {
 
-    gsd = makeExample()
+    gsd = makeExample(n=30,m=30)
     expect_error(results(gsd),
         "NBAMSeq function should be run before calling results function")
     gsd = NBAMSeq(gsd, parallel = TRUE)
@@ -22,7 +22,7 @@ test_that("Test invalid input", {
 })
 
 test_that("Test result output", {
-    n = 200
+    n = 30
     m = 30
     pheno = runif(m, 20, 80)
     mu = matrix(rep(NA, n*m), nrow = n)

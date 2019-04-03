@@ -1,7 +1,7 @@
 Package: NBAMSeq
 Type: Package
 Title: Negative Binomial Additive Model for RNA-Seq Data
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: c(
     person("Xu", "Ren", 
         email = "xuren2120@gmail.com", role = c("aut", "cre")),
@@ -23,7 +23,7 @@ Imports:
     methods,
     stats,
 Depends:
-    R (>= 3.5),
+    R (>= 3.6),
     SummarizedExperiment,
     S4Vectors
 Suggests:
@@ -33,4 +33,4 @@ Suggests:
     ggplot2
 RoxygenNote: 6.1.0
 VignetteBuilder: knitr
-biocViews: RNASeq, DifferentialExpression, GeneExpression, Sequencing
+biocViews: RNASeq, DifferentialExpression, GeneExpression, Sequencing, Coverage
