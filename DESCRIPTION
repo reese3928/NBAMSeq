@@ -1,0 +1,36 @@
+Package: NBAMSeq
+Type: Package
+Title: Negative Binomial Additive Model for RNA-Seq Data
+Version: 0.99.1
+Authors@R: c(
+    person("Xu", "Ren", 
+        email = "xuren2120@gmail.com", role = c("aut", "cre")),
+    person("Pei Fen", "Kuan", 
+        email = "peifen.kuan@stonybrook.edu", role = "aut"))
+Description: High-throughput sequencing experiments followed by differential 
+    expression analysis is a widely used approach to detect genomic biomarkers. 
+    A fundamental step in differential expression analysis is to model the 
+    association between gene counts and covariates of interest. NBAMSeq a 
+    flexible statistical model based on the generalized additive model and 
+    allows for information sharing across genes in variance estimation. 
+License: GPL-2
+Encoding: UTF-8
+Imports:
+    DESeq2,
+    mgcv(>= 1.8-24),
+    BiocParallel,
+    genefilter,
+    methods,
+    stats,
+Depends:
+    R (>= 3.5),
+    SummarizedExperiment,
+    S4Vectors
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat,
+    ggplot2
+RoxygenNote: 6.1.0
+VignetteBuilder: knitr
+biocViews: RNASeq, DifferentialExpression, GeneExpression, Sequencing
