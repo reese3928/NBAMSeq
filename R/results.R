@@ -29,7 +29,7 @@
 #' fold change and dispersion for RNA-seq data with DESeq2. Genome Biology,
 #' 15:550. \url{https://doi.org/10.1186/s13059-014-0550-8}
 #' @examples
-#' gsd = makeExample(n = 5, m = 10)
+#' gsd = makeExample(n = 3, m = 10)
 #' gsd = NBAMSeq(gsd, parallel = TRUE)
 #' res = results(gsd, name = "pheno")
 

@@ -2,7 +2,7 @@ context("Test validity")
 
 test_that("Test invalid input", {
 
-    n = 200
+    n = 10
     m = 30
     counts = matrix(rnbinom(n * m, 10, 0.3), n)
 

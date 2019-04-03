@@ -64,9 +64,9 @@ Users are expected to provide three parts of input, i.e. `countData`,
 
 ```{r}
 ## An example of countData
-n = 100  ## n stands for number of genes
+n = 50  ## n stands for number of genes
 m = 20   ## m stands for sample size
-countData = matrix(rnbinom(n*m, mu=100, size=1/3), ncol = m)
+countData = matrix(rnbinom(n*m, mu=100, size=1/3), ncol = m) + 1
 mode(countData) = "integer"
 colnames(countData) = paste0("sample", 1:m)
 rownames(countData) = paste0("gene", 1:n)

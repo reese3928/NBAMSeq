@@ -1,8 +1,8 @@
 
 context("Test methods")
 
-test_that("set getsf", {
-    n = 15
+test_that("set setsf", {
+    n = 5
     m = 10
     gsd = makeExample(n = n, m = m)
     sf = as.factor(sample(1:5,m, replace = TRUE))
