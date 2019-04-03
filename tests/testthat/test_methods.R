@@ -1,28 +1,6 @@
 
 context("Test methods")
 
-library(DESeq2)
-
-test_that("Test getsf", {
-    n = 15
-    m = 10
-    gsd = makeExample(n = n, m = m)
-    sf = getsf(gsd)
-    expect_true(is.null(sf))
-    gsd = NBAMSeq(gsd, parallel = TRUE)
-    sf = getsf(gsd)
-    expect_true(is.numeric(sf))
-    expect_true(length(sf) == m)
-    expect_true(all(names(sf) == paste0("sample", 1:m)))
-
-    dds = DESeqDataSetFromMatrix(countData = assay(gsd),
-                                 colData = colData(gsd), design = ~pheno)
-    dds = estimateSizeFactors(dds)
-    expect_true(all(sizeFactors(dds)==sf))
-
-})
-
-
 test_that("set getsf", {
     n = 15
     m = 10

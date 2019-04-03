@@ -26,7 +26,7 @@ test_that("Test invalid input", {
 
 
 test_that("Test NBAMSeq output", {
-    gsd = makeExample(n=15,m=10)
+    gsd = makeExample(n=5,m=10)
     ## Test parallel option
     gsd = NBAMSeq(gsd, parallel = TRUE)
     gsd2 = NBAMSeq(gsd, parallel = FALSE)
@@ -55,7 +55,7 @@ test_that("Test NBAMSeq output", {
     expect_error(results(gsd, name = "pheno", alpha = -0.1))
     expect_error(results(gsd, name = "pheno", alpha = 1.2))
 
-    n = 15
+    n = 5
     m = 30
     pheno = runif(m, 20, 80)
     mu = matrix(rep(NA, n*m), nrow = n)
@@ -85,11 +85,28 @@ test_that("Test NBAMSeq output", {
     gsd = NBAMSeqDataSet(countData = countData, colData = colData,
                         design = ~ var4 + s(pheno) + s(var1) + var2 + var3)
 
+    ## Test getsf and setsf
+    sf = getsf(gsd)
+    expect_true(is.null(sf))
+    
     sf = sample(1:5,m, replace = TRUE)
     setsf(gsd) = sf
     expect_true(all(getsf(gsd) == sf))
+    gsd = NBAMSeqDataSet(countData = countData, colData = colData,
+                         design = ~ var4 + s(pheno) + s(var1) + var2 + var3)
     gsd = NBAMSeq(gsd, parallel = TRUE)
+    
+    sf = getsf(gsd)
+    expect_true(is.numeric(sf))
+    expect_true(length(sf) == m)
+    expect_true(all(names(sf) == paste0("sample", 1:m)))
     expect_true(all(getsf(gsd) == sf))
+    
+    dds = DESeqDataSetFromMatrix(countData = assay(gsd),
+                                 colData = colData(gsd), design = ~pheno)
+    dds = estimateSizeFactors(dds)
+    expect_true(all(sizeFactors(dds)==sf))
+    
     
     expect_true("Intercept"%in%names(mcols(gsd)))
     expect_true("edf_var1"%in%names(mcols(gsd)))
