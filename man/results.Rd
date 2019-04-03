@@ -44,7 +44,7 @@ returned by \code{\link{NBAMSeq}}
 }
 \examples{
 gsd = makeExample(n = 3, m = 10)
-gsd = NBAMSeq(gsd, parallel = TRUE)
+gsd = NBAMSeq(gsd)
 res = results(gsd, name = "pheno")
 }
 \references{

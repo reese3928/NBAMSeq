@@ -32,7 +32,7 @@ on negative binomial additive model.
 }
 \examples{
 gsd = makeExample(n = 3, m = 10)
-gsd = NBAMSeq(gsd, parallel = TRUE)
+gsd = NBAMSeq(gsd)
 }
 \references{
 Love, M.I., Huber, W., Anders, S. (2014) Moderated estimation of

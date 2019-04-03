@@ -30,7 +30,7 @@
 #' 15:550. \url{https://doi.org/10.1186/s13059-014-0550-8}
 #' @examples
 #' gsd = makeExample(n = 3, m = 10)
-#' gsd = NBAMSeq(gsd, parallel = TRUE)
+#' gsd = NBAMSeq(gsd)
 #' res = results(gsd, name = "pheno")
 
 results <- function(object, name, contrast, indepfilter = TRUE, alpha = 0.1,
