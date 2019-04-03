@@ -24,18 +24,14 @@ test_that("Test invalid input", {
 
 })
 
-test_that("Test parallel option", {
-    gsd = makeExample(n=30,m=30)
-    gsd1 = NBAMSeq(gsd, parallel = TRUE)
-    gsd2 = NBAMSeq(gsd, parallel = FALSE)
-    expect_identical(gsd1,gsd2)
-
-
-})
 
 test_that("Test NBAMSeq output", {
-    gsd = makeExample(n=30,m=30)
+    gsd = makeExample(n=15,m=10)
+    ## Test parallel option
     gsd = NBAMSeq(gsd, parallel = TRUE)
+    gsd2 = NBAMSeq(gsd, parallel = FALSE)
+    expect_identical(gsd,gsd2)
+    
     expect_true("Intercept"%in%names(mcols(gsd)))
     expect_true("edf_pheno"%in%names(mcols(gsd)))
     expect_true("Chisq_pheno"%in%names(mcols(gsd)))
@@ -43,8 +39,23 @@ test_that("Test NBAMSeq output", {
     expect_true("df_residual"%in%names(mcols(gsd)))
     expect_true("null_deviance"%in%names(mcols(gsd)))
     expect_true("df_null"%in%names(mcols(gsd)))
+    
+    # Test invalid input for results function
+    expect_error(results(gsd, name = 1))
+    expect_error(results(gsd, name = c("pheno","var1")))
+    expect_error(results(gsd),
+                 "Either 'name' or 'contrast' argument should be provided.")
+    expect_error(results(gsd, name = "var10"))
+    
+    expect_error(results(gsd, name = "pheno", indepfilter = "unknown"))
+    expect_error(results(gsd, name = "pheno", indepfilter = c(TRUE, FALSE)))
+    
+    expect_error(results(gsd, name = "pheno", alpha = "unknown"))
+    expect_error(results(gsd, name = "pheno", alpha = c(0.5, 0.6)))
+    expect_error(results(gsd, name = "pheno", alpha = -0.1))
+    expect_error(results(gsd, name = "pheno", alpha = 1.2))
 
-    n = 30
+    n = 15
     m = 30
     pheno = runif(m, 20, 80)
     mu = matrix(rep(NA, n*m), nrow = n)
@@ -74,7 +85,12 @@ test_that("Test NBAMSeq output", {
     gsd = NBAMSeqDataSet(countData = countData, colData = colData,
                         design = ~ var4 + s(pheno) + s(var1) + var2 + var3)
 
+    sf = sample(1:5,m, replace = TRUE)
+    setsf(gsd) = sf
+    expect_true(all(getsf(gsd) == sf))
     gsd = NBAMSeq(gsd, parallel = TRUE)
+    expect_true(all(getsf(gsd) == sf))
+    
     expect_true("Intercept"%in%names(mcols(gsd)))
     expect_true("edf_var1"%in%names(mcols(gsd)))
     expect_true("Chisq_var1"%in%names(mcols(gsd)))
@@ -87,48 +103,72 @@ test_that("Test NBAMSeq output", {
     expect_true("df_residual"%in%names(mcols(gsd)))
     expect_true("null_deviance"%in%names(mcols(gsd)))
     expect_true("df_null"%in%names(mcols(gsd)))
-
+    
+    
+    ## test result function output
+    expect_error(results(gsd, name = "var4"),
+                 " 'name' should be a continuous variable. For factors,
+                please use 'contrast' argument.")
+    expect_error(results(gsd, contrast = c("var4", 1)),
+                 " 'contrast' should be a character of length 3.")
+    expect_error(results(gsd, contrast = c("var4", 1, 1)),
+                 "2nd and 3rd element in constrast should be different.")
+    expect_error(results(gsd, contrast = c("var10", 1, 0)),
+                 "1st element in contrast should be a variable in colData.")
+    expect_error(results(gsd, contrast = c("var2", 1, 0)),
+                 "The variable in contrast should be a factor. For continuous
+                variables, please use 'name' argument.")
+    expect_error(results(gsd, contrast = c("var4", 5, 0)),
+                 "2nd element in contrast should be an appropriate level.")
+    expect_error(results(gsd, contrast = c("var4", 1, 10)),
+                 "3rd element in contrast should be an appropriate level.")
+    
+    res1 = results(gsd, name = "pheno")
+    expect_true("baseMean"%in%names(res1))
+    expect_true("edf"%in%names(res1))
+    expect_true("stat"%in%names(res1))
+    expect_true("pvalue"%in%names(res1))
+    expect_true("padj"%in%names(res1))
+    
+    res2 = results(gsd, name = "var3")
+    expect_true("baseMean"%in%names(res2))
+    expect_true("coef"%in%names(res2))
+    expect_true("SE"%in%names(res2))
+    expect_true("stat"%in%names(res2))
+    expect_true("pvalue"%in%names(res2))
+    expect_true("padj"%in%names(res2))
+    
+    ## check contrast
+    res3 = results(gsd, contrast = c("var4", 1, 2), parallel = TRUE)
+    res4 = results(gsd, contrast = c("var4", 2, 1), parallel = TRUE)
+    expect_identical(res3[["baseMean"]], res4[["baseMean"]])
+    expect_equal(res3[["coef"]],-res4[["coef"]], tolerance=1e-8)
+    expect_equal(res3[["SE"]],res4[["SE"]], tolerance=1e-8)
+    expect_equal(res3[["stat"]],-res4[["stat"]], tolerance=1e-8)
+    expect_equal(res3[["pvalue"]],res4[["pvalue"]], tolerance=1e-8)
+    expect_equal(res3[["padj"]],res4[["padj"]], tolerance=1e-8)
+    
+    ## check parallel option:
+    res7 = results(gsd, contrast = c("var4", 2, 1), parallel = FALSE)
+    expect_identical(res4[["baseMean"]], res7[["baseMean"]])
+    expect_equal(res4[["coef"]], res7[["coef"]], tolerance=1e-8)
+    expect_equal(res4[["SE"]], res7[["SE"]], tolerance=1e-8)
+    expect_equal(res4[["stat"]], res7[["stat"]], tolerance=1e-8)
+    expect_equal(res4[["pvalue"]], res7[["pvalue"]], tolerance=1e-8)
+    expect_equal(res4[["padj"]], res7[["padj"]], tolerance=1e-8)
+    
+    
+    res5 = results(gsd, contrast = c("var4", 1, 0))
+    res6 = results(gsd, contrast = c("var4", 0, 1))
+    expect_identical(res5[["baseMean"]], res6[["baseMean"]])
+    expect_identical(res5[["coef"]], -res6[["coef"]])
+    expect_identical(res5[["SE"]], res6[["SE"]])
+    expect_identical(res5[["stat"]], -res6[["stat"]])
+    expect_equal(res5[["pvalue"]],res6[["pvalue"]], tolerance=1e-8)
+    expect_equal(res5[["padj"]],res6[["padj"]], tolerance=1e-8)
+    
+    expect_true(all(res5[["coef"]]==mcols(gsd)[["var4_1_vs_0"]]))
+    expect_true(all(res5[["SE"]]==mcols(gsd)[["SE_var4_1_vs_0"]]))
+    expect_true(all(res5[["pvalue"]]==mcols(gsd)[["PValue_var4_1_vs_0"]]))
 
 })
-
-test_that("Test additional argument for gam", {
-    gsd = makeExample(n=30,m=30)
-    gsd = NBAMSeq(gsd, parallel = TRUE, control=gam.control(maxit = 1))
-    expect_true(all(mcols(gsd)[["innerIter"]]<=1))
-})
-
-
-
-# test_that("Test ncols(dds) ", {
-#    gsd = makeExample()
-#    ddsdesign = formula(paste0("~",
-#                               paste(all.vars(getDesign(gsd)), collapse= "+")))
-#    dds = DESeqDataSetFromMatrix(countData = assay(gsd), colData = colData(gsd),
-#                                 design =  ddsdesign)
-#    dds = estimateSizeFactors(dds)
-#    logsf = log(sizeFactors(dds))
-#    gamma = log2(ncol(gsd))
-
-#    dat = data.frame(colData(gsd))
-#    dat$logsf = logsf
-
-#    formula_offset = update(getDesign(gsd), y ~ . + offset(logsf))
-
-#    gamFit1 = function(i){
-#        dat$y = assay(gsd)[i,]
-#        gamfit = gam(formula_offset, family = nb(link = "log"),
-#                     gamma = gamma, data = dat)
-#        mcols(dds)$dispGeneEst[i] = 1/(gamfit$family$getTheta(TRUE))
-#        list(theta = gamfit$family$getTheta(TRUE), sp = gamfit$sp,
-#             coef = coef(gamfit), muhat = gamfit$fitted.values)
-#    }
-#    gamGeneEst = lapply(1:nrow(gsd), gamFit1)
-#    expect_true(all(mcols(dds)$dispGeneEst ==
-#                        1/vapply(gamGeneEst, function(x) x$theta, 1)))
-
-#})
-
-
-
-
-

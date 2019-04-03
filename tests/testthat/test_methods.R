@@ -4,8 +4,8 @@ context("Test methods")
 library(DESeq2)
 
 test_that("Test getsf", {
-    n = 30
-    m = 30
+    n = 15
+    m = 10
     gsd = makeExample(n = n, m = m)
     sf = getsf(gsd)
     expect_true(is.null(sf))
@@ -24,8 +24,8 @@ test_that("Test getsf", {
 
 
 test_that("set getsf", {
-    n = 30
-    m = 30
+    n = 15
+    m = 10
     gsd = makeExample(n = n, m = m)
     sf = as.factor(sample(1:5,m, replace = TRUE))
     expect_error((setsf(gsd) = sf))
@@ -38,13 +38,6 @@ test_that("set getsf", {
     sf = sample(1:5,m, replace = TRUE)
     sf[5] = -2
     expect_error((setsf(gsd) = sf), "Size factor cannot be 0 or negative.")
-
-
-    sf = sample(1:5,m, replace = TRUE)
-    setsf(gsd) = sf
-    expect_true(all(getsf(gsd) == sf))
-    gsd = NBAMSeq(gsd, parallel = TRUE)
-    expect_true(all(getsf(gsd) == sf))
 
 })
 
