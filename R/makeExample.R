@@ -1,7 +1,7 @@
 
 #' @title Make an example NBAMSeqDataSet
 #'
-#' @description this function makes an example NBAMSeqDataSet
+#' @description This function makes an example NBAMSeqDataSet
 #' @param n number of genes
 #' @param m number of samples
 #' @importFrom stats rnbinom rnorm runif

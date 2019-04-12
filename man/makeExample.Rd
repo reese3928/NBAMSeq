@@ -15,7 +15,7 @@ makeExample(n = 200, m = 30)
 a NBAMSeqDataSet object
 }
 \description{
-this function makes an example NBAMSeqDataSet
+This function makes an example NBAMSeqDataSet
 }
 \examples{
 gsd = makeExample()

@@ -6,6 +6,9 @@
 #' It is used to store the count matrix, colData, and design formula
 #' in differential expression analysis.
 #' @slot design a mgcv-type design formula
+#' @references Martin Morgan, Valerie Obenchain, Jim Hester and 
+#' Hervé Pagès (2018). SummarizedExperiment: SummarizedExperiment container. 
+#' R package version 1.12.0.
 #' @export NBAMSeqDataSet
 setClass("NBAMSeqDataSet",
     contains="SummarizedExperiment",
@@ -164,7 +167,7 @@ before differential expression analysis." )
 }
 
 
-#' Accessor functions for NBAMSeqDataSet object
+#' Accessor functions and replace methods for NBAMSeqDataSet object
 #' @name NBAMSeq-methods
 #' @rdname NBAMSeq-methods
 #' @param theObject a NBAMSeqDataSet object
@@ -175,13 +178,14 @@ NULL
 #' @export
 setGeneric("getDesign", function(theObject) standardGeneric("getDesign"))
 
-#' Accessor to the design formula
+#' For \code{getDesign()}: accessor to the design formula
 #' @rdname NBAMSeq-methods
 #' @examples
+#' ## For getDesign() ##
 #' gsd = makeExample()
 #' design_gsd = getDesign(gsd)
 #' @export
-#' @return design
+#' @return For \code{getDesign()}: design formula
 setMethod("getDesign", "NBAMSeqDataSet", function(theObject) theObject@design)
 
 
@@ -189,15 +193,16 @@ setMethod("getDesign", "NBAMSeqDataSet", function(theObject) theObject@design)
 #' @export
 setGeneric("getsf", function(theObject) standardGeneric("getsf"))
 
-#' Accessor to the size factors
+#' For \code{getsf()}: accessor to the size factors
 #' @rdname NBAMSeq-methods
 #' @examples
+#' ## For getsf() ##
 #' gsd = makeExample()
 #' sf = getsf(gsd)
 #' @references Love, M.I., Huber, W., Anders, S. (2014) Moderated estimation of
 #' fold change and dispersion for RNA-seq data with DESeq2. Genome Biology,
 #' 15:550. \url{https://doi.org/10.1186/s13059-014-0550-8}
-#' @return size factor
+#' @return For \code{getsf()}: size factor
 #' @export
 setMethod("getsf", "NBAMSeqDataSet", function(theObject){
     if (!"sizeFactors" %in% names(colData(theObject)))  return(NULL)
@@ -212,15 +217,16 @@ setMethod("getsf", "NBAMSeqDataSet", function(theObject){
 #' @export
 setGeneric("setsf<-", function(theObject, value) standardGeneric("setsf<-"))
 
-#' Replace size factors
+#' For \code{setsf()}: replace size factors
 #' @rdname NBAMSeq-methods
 #' @examples
+#' ## For setsf() ##
 #' n = 100
 #' m = 50
 #' gsd = makeExample(n = n, m = m)
 #' sf = sample(1:5, m, replace = TRUE)
 #' setsf(gsd) = sf
-#' @return object
+#' @return For \code{setsf()}: NBAMSeq object
 #' @exportMethod "setsf<-"
 setReplaceMethod("setsf", signature = c("NBAMSeqDataSet", "numeric"),
     function(theObject, value){

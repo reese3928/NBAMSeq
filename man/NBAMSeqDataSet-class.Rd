@@ -16,3 +16,8 @@ in differential expression analysis.
 \item{\code{design}}{a mgcv-type design formula}
 }}
 
+\references{
+Martin Morgan, Valerie Obenchain, Jim Hester and 
+Hervé Pagès (2018). SummarizedExperiment: SummarizedExperiment container. 
+R package version 1.12.0.
+}

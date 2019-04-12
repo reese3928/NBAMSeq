@@ -9,7 +9,7 @@
 \alias{getsf,NBAMSeqDataSet-method}
 \alias{setsf<-}
 \alias{setsf<-,NBAMSeqDataSet,numeric-method}
-\title{Accessor functions for NBAMSeqDataSet object}
+\title{Accessor functions and replace methods for NBAMSeqDataSet object}
 \usage{
 getDesign(theObject)
 
@@ -29,28 +29,31 @@ setsf(theObject) <- value
 \item{value}{the values to be included in the object}
 }
 \value{
-design
+For \code{getDesign()}: design formula
 
-size factor
+For \code{getsf()}: size factor
 
-object
+For \code{setsf()}: NBAMSeq object
 }
 \description{
-Accessor functions for NBAMSeqDataSet object
+Accessor functions and replace methods for NBAMSeqDataSet object
 
-Accessor to the design formula
+For \code{getDesign()}: accessor to the design formula
 
-Accessor to the size factors
+For \code{getsf()}: accessor to the size factors
 
 Replace methods for NBAMSeqDataSet object
 
-Replace size factors
+For \code{setsf()}: replace size factors
 }
 \examples{
+## For getDesign() ##
 gsd = makeExample()
 design_gsd = getDesign(gsd)
+## For getsf() ##
 gsd = makeExample()
 sf = getsf(gsd)
+## For setsf() ##
 n = 100
 m = 50
 gsd = makeExample(n = n, m = m)
