@@ -147,7 +147,7 @@ function in mgcv [@wood2015package] for details. Default `gamma` is 2;
 * `parallel` is either `TRUE` or `FALSE` indicating whether parallel should be
 used. e.g. Run `NBAMSeq` with `parallel = TRUE`:
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 library(BiocParallel)
 gsd = NBAMSeq(gsd, parallel = TRUE)
 ```
