@@ -1,7 +1,7 @@
 Package: NBAMSeq
 Type: Package
 Title: Negative Binomial Additive Model for RNA-Seq Data
-Version: 0.99.11
+Version: 0.99.12
 Authors@R: c(
     person("Xu", "Ren", 
         email = "xuren2120@gmail.com", role = c("aut", "cre")),

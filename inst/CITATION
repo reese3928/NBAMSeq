@@ -1,0 +1,10 @@
+citEntry(entry="article",
+         title = "Negative Binomial Additive Model for RNA-Seq Data Analysis",
+         author = personList(as.person("Xu Ren"), as.person("Pei Fen Kuan")),
+         year = 2019,
+         journal = "bioRxiv",
+         doi = "10.1101/599811",
+         textVersion = "Ren, X. and Kuan, P. (2019). Negative Binomial Additive 
+         Model for RNA-Seq Data Analysis. bioRxiv,
+         https://doi.org/10.1101/599811")
+         
