@@ -69,21 +69,27 @@ NBAMSeq <- function(object, gamma = 2, parallel = FALSE,
         dat$y = assay(object)[i,]
         gamfit = tryCatch(
             expr = {
-                gam(formula_offset, family = nb(link = "log"),
+                tmp = gam(formula_offset, family = nb(link = "log"),
                     method = "REML", gamma = gamma, data = dat, ...)
+                tmp$gamma = gamma  ## save gamma value in gam object
+                tmp
             },
             error = function(e){
-                gam(formula_offset, family = nb(link = "log"),
+                tmp = gam(formula_offset, family = nb(link = "log"),
                     method = "REML", gamma = 1, data = dat, ...)
+                tmp$gamma = 1
+                tmp
             },
             warning = function(w){
-                gam(formula_offset, family = nb(link = "log"),
+                tmp = gam(formula_offset, family = nb(link = "log"),
                     method = "REML", gamma = 1, data = dat, ...)
+                tmp$gamma = 1
+                tmp
             }
         )
         list(theta = gamfit$family$getTheta(TRUE), sp = gamfit$sp,
             coef = coef(gamfit), muhat = gamfit$fitted.values,
-            outIter = gamfit$outer.info$iter)
+            outIter = gamfit$outer.info$iter, gamma = gamfit$gamma)
     }
 
     message("Estimating smoothing parameters and gene-wise dispersions")
@@ -122,8 +128,10 @@ NBAMSeq <- function(object, gamma = 2, parallel = FALSE,
         }
     )
     ind = which(is.na(mcols(dds)$dispMAP))
-    mcols(dds)$dispMAP[ind] = mcols(dds)$dispGeneEst[ind]
-
+    if(length(ind)>0){
+        mcols(dds)$dispMAP[ind] = mcols(dds)$dispGeneEst[ind]
+    }
+    
     gamDispMAP = mcols(dds)$dispMAP
     mcols(object) = mcols(dds)
 
@@ -202,7 +210,8 @@ NBAMSeq <- function(object, gamma = 2, parallel = FALSE,
             vapply(gamGeneEst, function(x) x$sp, rep(1, n2)),
             vapply(gamFinal, function(x) x$residualdf, 0),
             vapply(gamFinal, function(x) x$nulldeviance, 0),
-            vapply(gamFinal, function(x) x$nulldf, 0)
+            vapply(gamFinal, function(x) x$nulldf, 0),
+            vapply(gamGeneEst, function(x) x$gamma, 1)
             ))
             )
         )
@@ -211,7 +220,7 @@ NBAMSeq <- function(object, gamma = 2, parallel = FALSE,
         paste0("edf_", sterms), paste0("Chisq_", sterms),
         paste0("PValue_", sterms), "deviance", "outIter", "innerIter",
         "converged", paste0("smooth_", sterms),
-        "df_residual", "null_deviance", "df_null")
+        "df_residual", "null_deviance", "df_null", "gamma")
     colnames(mcols(object)) = nm
     class(mcols(object)[["outIter"]]) = "integer"
     class(mcols(object)[["innerIter"]]) = "integer"

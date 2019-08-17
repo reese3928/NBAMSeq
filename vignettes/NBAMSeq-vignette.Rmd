@@ -183,9 +183,22 @@ head(res3)
 
 ## Visualization
 
-To explore the nonlinear association of covariates, it is instructive to look
-at log normalized counts vs. variable scatter plot. Below we show how to 
-produce such plot.
+We suggest two approaches to visualize the nonlinear associations. The first 
+approach is to plot the smooth components of a fitted negative binomial 
+additive model by `plot.gam` function in mgcv [@wood2015package]. This can be
+done by calling `makeplot` function and passing in `NBAMSeqDataSet` object. 
+Users are expected to provide the phenotype of interest in `phenoname` 
+argument and gene of interest in `genename` argument.
+
+```{r}
+## assuming we are interested in the nonlinear relationship between gene10's 
+## expression and "pheno"
+makeplot(gsd, phenoname = "pheno", genename = "gene10", main = "gene10")
+```
+
+In addition, to explore the nonlinear association of covariates, it is also 
+instructive to look at log normalized counts vs. variable scatter plot. 
+Below we show how to produce such plot.
 
 ```{r}
 ## here we explore the most significant nonlinear association

@@ -5,7 +5,7 @@
 \title{Pulling out result}
 \usage{
 results(object, name, contrast, indepfilter = TRUE, alpha = 0.1,
-    pAdjustMethod = "BH", parallel = FALSE, BPPARAM = bpparam(), ...)
+  pAdjustMethod = "BH", parallel = FALSE, BPPARAM = bpparam(), ...)
 }
 \arguments{
 \item{object}{a NBAMSeqDataSet object returned by \code{\link{NBAMSeq}}}

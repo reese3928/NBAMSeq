@@ -6,7 +6,7 @@
 model}
 \usage{
 NBAMSeq(object, gamma = 2, parallel = FALSE, BPPARAM = bpparam(),
-    ...)
+  ...)
 }
 \arguments{
 \item{object}{a NBAMSeqDataSet object}
