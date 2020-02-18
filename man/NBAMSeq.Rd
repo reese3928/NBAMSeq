@@ -5,18 +5,21 @@
 \title{Differential expression analysis based on negative binomial additive
 model}
 \usage{
-NBAMSeq(object, gamma = 2, parallel = FALSE, BPPARAM = bpparam(),
-  ...)
+NBAMSeq(object, gamma = 2.5, parallel = FALSE, fitlin = FALSE,
+  BPPARAM = bpparam(), ...)
 }
 \arguments{
 \item{object}{a NBAMSeqDataSet object}
 
 \item{gamma}{a number greater or equal to 1. Increase gamma to create
-smoother models. Default gamma is 2. See \code{\link[mgcv]{gam}} for
+smoother models. Default gamma is 2.5. See \code{\link[mgcv]{gam}} for
 details.}
 
 \item{parallel}{either TRUE or FALSE indicating whether parallel should be
 used. Default is FALSE}
+
+\item{fitlin}{either TRUE or FALSE indicating whether linear model should be
+fitted. Default is FALSE}
 
 \item{BPPARAM}{an argument provided to \code{\link{bplapply}}. See
 \code{\link[BiocParallel]{register}} for details.}

@@ -25,7 +25,7 @@ To install and load NBAMSeq
 ```{r eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-BiocManager::install("NBAMSeq", version = "3.9")
+BiocManager::install("NBAMSeq")
 ```
 
 ```{r}
@@ -142,7 +142,10 @@ customize the analysis.
 function. Higher `gamma` means the nonlinear function will be more smooth. 
 See the `gamma` argument of 
 [gam](https://stat.ethz.ch/R-manual/R-devel/library/mgcv/html/gam.html) 
-function in mgcv [@wood2015package] for details. Default `gamma` is 2;
+function in mgcv [@wood2015package] for details. Default `gamma` is 2.5;
+
+* `fitlin` is either `TRUE` or `FALSE` indicating whether linear model should 
+be fitted after fitting the nonlinear model;
 
 * `parallel` is either `TRUE` or `FALSE` indicating whether parallel should be
 used. e.g. Run `NBAMSeq` with `parallel = TRUE`:

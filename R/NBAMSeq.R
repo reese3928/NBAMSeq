@@ -5,10 +5,12 @@
 #' on negative binomial additive model.
 #' @param object a NBAMSeqDataSet object
 #' @param gamma a number greater or equal to 1. Increase gamma to create
-#' smoother models. Default gamma is 2. See \code{\link[mgcv]{gam}} for
+#' smoother models. Default gamma is 2.5. See \code{\link[mgcv]{gam}} for
 #' details.
 #' @param parallel either TRUE or FALSE indicating whether parallel should be
 #' used. Default is FALSE
+#' @param fitlin either TRUE or FALSE indicating whether linear model should be
+#' fitted. Default is FALSE
 #' @param BPPARAM an argument provided to \code{\link{bplapply}}. See
 #' \code{\link[BiocParallel]{register}} for details.
 #' @param ... additional arguments provided to \code{\link[mgcv]{gam}}
@@ -17,7 +19,7 @@
 #' @import SummarizedExperiment S4Vectors DESeq2
 #' @importFrom BiocParallel bplapply bpparam
 #' @importFrom methods is new
-#' @importFrom stats coef formula update
+#' @importFrom stats coef formula update AIC BIC
 #' @return a NBAMSeqDataSet object
 #' @references Love, M.I., Huber, W., Anders, S. (2014) Moderated estimation of
 #' fold change and dispersion for RNA-seq data with DESeq2. Genome Biology,
@@ -26,7 +28,7 @@
 #' gsd = makeExample(n = 3, m = 10)
 #' gsd = NBAMSeq(gsd)
 
-NBAMSeq <- function(object, gamma = 2, parallel = FALSE,
+NBAMSeq <- function(object, gamma = 2.5, parallel = FALSE, fitlin = FALSE, 
     BPPARAM = bpparam(), ...){
 
     ## check input
@@ -40,6 +42,8 @@ NBAMSeq <- function(object, gamma = 2, parallel = FALSE,
     }
     stopifnot(is.logical(parallel))
     stopifnot(length(parallel)==1)
+    stopifnot(is.logical(fitlin))
+    stopifnot(length(fitlin)==1)
 
     ## construct a DESeqDataSet object
     ddsdesign = formula(paste0("~",
@@ -154,7 +158,9 @@ NBAMSeq <- function(object, gamma = 2, parallel = FALSE,
             converged = gamFinalFit$converged,
             residualdf = gamFinalFit$df.residual,
             nulldeviance = gamFinalFit$null.deviance,
-            nulldf = gamFinalFit$df.null
+            nulldf = gamFinalFit$df.null,
+            AICnonlin = AIC(gamFinalFit),
+            BICnonlin = BIC(gamFinalFit)
             )
     }
 
@@ -211,7 +217,9 @@ NBAMSeq <- function(object, gamma = 2, parallel = FALSE,
             vapply(gamFinal, function(x) x$residualdf, 0),
             vapply(gamFinal, function(x) x$nulldeviance, 0),
             vapply(gamFinal, function(x) x$nulldf, 0),
-            vapply(gamGeneEst, function(x) x$gamma, 1)
+            vapply(gamGeneEst, function(x) x$gamma, 1),
+            vapply(gamFinal, function(x) x$AICnonlin, 0),
+            vapply(gamFinal, function(x) x$BICnonlin, 0)
             ))
             )
         )
@@ -220,16 +228,141 @@ NBAMSeq <- function(object, gamma = 2, parallel = FALSE,
         paste0("edf_", sterms), paste0("Chisq_", sterms),
         paste0("PValue_", sterms), "deviance", "outIter", "innerIter",
         "converged", paste0("smooth_", sterms),
-        "df_residual", "null_deviance", "df_null", "gamma")
+        "df_residual", "null_deviance", "df_null", "gamma", "AIC", "BIC")
     colnames(mcols(object)) = nm
     class(mcols(object)[["outIter"]]) = "integer"
     class(mcols(object)[["innerIter"]]) = "integer"
     class(mcols(object)[["converged"]]) = "logical"
 
     metadata(object)$fitted = TRUE
+    
+    if(fitlin){
+        message("Fitting linear models")
+        object = fitlin(object, parallel = parallel, BPPARAM = BPPARAM, ...)
+    }
     message("Done!")
     object
 }
 
+
+
+
+fitlin = function(object, parallel, BPPARAM, ...){
+    AICBICcolind = which(names(mcols(object))%in%c("AIC", "BIC"))
+    names(mcols(object))[AICBICcolind] = c("AICnonlin", "BICnonlin")
+    
+    dat = data.frame(colData(object))
+    gamDispMAP = mcols(object)$dispMAP
+    
+    ## fit intercept only models
+    gamFitIntercept = function(i){
+        dat$y = assay(object)[i,]   ## ith gene count
+        gamFinalFit = gam(y~offset(logsf),
+                          family = negbin(theta = 1/gamDispMAP[i],link = "log"),
+                          method = "REML", data = dat)
+        list(AICintercept = AIC(gamFinalFit), BICintercept = BIC(gamFinalFit))
+    }
+    if(parallel){
+        gamFinalIntercept = bplapply(seq_len(nrow(object)), 
+                                     gamFitIntercept, BPPARAM = BPPARAM)
+    } else{
+        gamFinalIntercept = lapply(seq_len(nrow(object)), gamFitIntercept)
+    }
+    
+    nm = names(mcols(object))
+    mcols(object) = cbind(mcols(object),
+        DataFrame(t(rbind(
+            vapply(gamFinalIntercept, function(x) x$AICintercept, 0),
+            vapply(gamFinalIntercept, function(x) x$BICintercept, 0)
+        ))
+        )
+    )
+    names(mcols(object)) = c(nm,"AICintercept","BICintercept")
+    ## end fitting intercept only models
+    
+    
+    ## fit linear models
+    ddsdesign = formula(paste0("~",
+        paste(all.vars(getDesign(object)), collapse= "+")) )
+    formula_offsetlin = update(ddsdesign, y ~ . + offset(logsf))
+    dds = DESeqDataSetFromMatrix(countData = assay(object), 
+        colData = colData(object), design = ddsdesign)
+    
+    ## set size factors to previously estimated size factor
+    sizeFactors(dds) = getsf(object)
+    
+    ## fit gene-wise linear model
+    gamFitlin1 = function(i){
+        dat$y = assay(object)[i,]
+        gamfit = gam(formula_offsetlin, family = nb(link = "log"),
+                     method = "REML", data = dat, ...)
+        list(theta = gamfit$family$getTheta(TRUE), coef = coef(gamfit), 
+             muhat = gamfit$fitted.values)
+    }
+    if(parallel){
+        gamGeneEst = bplapply(seq_len(nrow(object)), 
+            gamFitlin1, BPPARAM = BPPARAM)
+    } else {
+        gamGeneEst = lapply(seq_len(nrow(object)), gamFitlin1)
+    }
+    
+    ##  get gam gene wise dispersion estimates and save them in mcols(dds)
+    mcols(dds)$dispGeneEst = 1/vapply(gamGeneEst, function(x) x$theta, 1)
+    ##  bound gene wise dispersion
+    maxDisp = pmax(10, ncol(dds))
+    mcols(dds)$dispGeneEst = pmin(mcols(dds)$dispGeneEst, maxDisp)
+    
+    ##  fit dispersion trend via estimateDispersionsFit function in DESeq2
+    dds = estimateDispersionsFit(dds)
+    
+    ##  get gam mu estimates and save them in assays(dds)[["mu"]]
+    muhat = t(vapply(gamGeneEst, function(x) x$muhat, rep(1, ncol(dds))))
+    colnames(muhat) = colnames(dds)
+    rownames(muhat) = rownames(dds)
+    assays(dds)[["mu"]] = muhat
+    
+    ##  MAP dispersion estimates
+    dds = tryCatch(
+        expr = {
+            estimateDispersionsMAP(dds)
+        },
+        error = function(e){
+            ## avoid possible matrix singular error in DESeq2 C++ code
+            assays(dds)[["mu"]] = muhat+1e-6
+            estimateDispersionsMAP(dds)
+        }
+    )
+    ind = which(is.na(mcols(dds)$dispMAP))
+    if(length(ind)>0){
+        mcols(dds)$dispMAP[ind] = mcols(dds)$dispGeneEst[ind]
+    }
+    
+    gamDispMAP = mcols(dds)$dispMAP
+    
+    gamFitlin2 = function(i){
+        dat$y = assay(object)[i,]   ## ith gene count
+        start = gamGeneEst[[i]]$coef   ## initial coefficients
+        gamFinalFit = gam(formula_offsetlin,
+                          family = negbin(theta = 1/gamDispMAP[i],link = "log"),
+                          method = "REML", start = start, data = dat, ...)
+        list(AIClin = AIC(gamFinalFit), BIClin = BIC(gamFinalFit))
+    }
+    
+    gamFinallin = bplapply(seq_len(nrow(object)), gamFitlin2, 
+                           BPPARAM = bpparam())
+    
+    nm = names(mcols(object))
+    mcols(object) = cbind(mcols(object),
+                          DataFrame(t(rbind(
+                              vapply(gamFinallin, function(x) x$AIClin, 0),
+                              vapply(gamFinallin, function(x) x$BIClin, 0)
+                          ))
+                          )
+    )
+    names(mcols(object)) = c(nm,"AIClin","BIClin")
+    ## end fitting linear models
+
+    object
+}
 
 

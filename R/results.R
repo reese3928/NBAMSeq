@@ -160,8 +160,11 @@ results <- function(object, name, contrast, indepfilter = TRUE, alpha = 0.1,
     resdf = pvalueAdjustment(resdf, independentFiltering = indepfilter,
         alpha = alpha, pAdjustMethod = pAdjustMethod, ...)
     rownames(resdf) = rownames(assay(object))
+    AICBICnms = c("AIC", "BIC", "AICnonlin", "AIClin", "AICintercept", 
+                  "BICnonlin", "BIClin", "BICintercept")
+    AICBICcolind = which(names(mcols(object))%in%AICBICnms)
+    resdf = cbind(resdf, DataFrame(mcols(object)[,AICBICcolind]))
     resdf
-
 }
 
 
