@@ -1,3 +1,6 @@
+Changes in version 1.5.1 (2020-05-04)
++ Updated citation
+
 Changes in version 1.3.1 (2020-02-18)
 + The default gamma parameter in NBAMSeq changed from 2 to 2.5.
 + The NBAMSeq function now supports fitting linear model after 
