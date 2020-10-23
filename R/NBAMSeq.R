@@ -146,7 +146,8 @@ NBAMSeq <- function(object, gamma = 2.5, parallel = FALSE, fitlin = FALSE,
             family = negbin(theta = 1/gamDispMAP[i],link = "log"),
             method = "REML", sp = gamGeneEst[[i]]$sp,
             start = start, data = dat, ...)
-        list(paramcoef = summary(gamFinalFit)$p.table[,"Estimate"],
+        list(mu_hat = gamFinalFit$fitted.values,
+            paramcoef = summary(gamFinalFit)$p.table[,"Estimate"],
             paramSE = summary(gamFinalFit)$p.table[,"Std. Error"],
             paramZscore = summary(gamFinalFit)$p.table[,"z value"],
             paramPvalue = summary(gamFinalFit)$p.table[,"Pr(>|z|)"],
@@ -196,6 +197,14 @@ NBAMSeq <- function(object, gamma = 2.5, parallel = FALSE, fitlin = FALSE,
     sterms = setdiff(attr(gammodel$terms,"term.labels"),
         attr(gammodel$pterms,"term.labels"))
     stopifnot(length(sterms)>=1)
+    
+    ## save fitted values in assays(object)[["mu"]]
+    nsamples = ncol(object)
+    mu_hat = t(vapply(gamFinal, function(x) x$mu_hat, rep(0, nsamples)))
+    mu_hat = data.frame(mu_hat)
+    rownames(mu_hat) = rownames(object)
+    colnames(mu_hat) = colnames(object)
+    assays(object)[["mu"]] = mu_hat
 
     ## save results in mcols(object)
     n1 = length(gamFinal[[1]]$paramcoef)  ## number of parametric variables

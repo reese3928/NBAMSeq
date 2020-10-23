@@ -6,7 +6,7 @@ citEntry(entry="article",
          doi = "10.1186/s12859-020-3506-x",
          volume = 21,
          number = 1,
-         pages = 1--15,
+         pages = "1--15",
          textVersion = "Ren, X., & Kuan, P. F. (2020). Negative binomial 
          additive model for RNA-Seq data analysis. BMC Bioinformatics, 
          21(1), 1-15, https://doi.org/10.1186/s12859-020-3506-x")

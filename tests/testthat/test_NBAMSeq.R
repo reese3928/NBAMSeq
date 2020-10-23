@@ -86,6 +86,12 @@ test_that("Test NBAMSeq output", {
     # gsd = NBAMSeq(gsd, parallel = TRUE)
     # gsd2 = NBAMSeq(gsd, parallel = FALSE)
     # expect_identical(gsd,gsd2)
+    # expect_true("mu" %in% names(assays(gsd)))
+    # expect_true(is.data.frame(assays(gsd)[["mu"]]))
+    # expect_true(nrow(assays(gsd)[["mu"]]) == nrow(gsd))
+    # expect_true(ncol(assays(gsd)[["mu"]]) == ncol(gsd))
+    # expect_true(all(rownames(assays(gsd)[["mu"]]) == rownames(gsd)))
+    # expect_true(all(colnames(assays(gsd)[["mu"]]) == colnames(gsd)))
     # 
     # #check if gamma is working well
     # expect_true(all(mcols(gsd)$gamma == 2.5))
